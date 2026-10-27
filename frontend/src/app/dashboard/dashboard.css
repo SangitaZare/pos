@@ -1,0 +1,114 @@
+/* Layout: revenue headline across the top, live sales tape on the left,
+   stock and payment panels on the right. */
+:host {
+  --bg: #F2F4F7;
+  --surface: #FFFFFF;
+  --line: #DDE2EA;
+  --fg: #121A2B;
+  --muted: #5B667A;
+  --accent: #3B6EF5;
+  --accent-soft: #E6ECFE;
+  --bad: #C2312B;
+  --bad-soft: #FBE5E3;
+  --ok: #17803F;
+  --c-upi: #3B6EF5;
+  --c-cash: #0B7F70;
+  --c-card: #A24BA0;
+  --font-ui: "IBM Plex Sans", system-ui, "Segoe UI", sans-serif;
+  --font-num: "IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+
+  display: block;
+  min-height: calc(100vh - 54px);
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-ui);
+}
+
+.dash { max-width: 1180px; margin: 0 auto; padding: 24px 16px 40px; display: grid; gap: 16px; }
+
+.top { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; flex-wrap: wrap; }
+h1 { margin: 0; font-size: 26px; font-weight: 600; letter-spacing: -0.01em; }
+.sub { margin: 4px 0 0; color: var(--muted); font-size: 14px; }
+
+.pill { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); font-size: 13px; color: var(--muted); }
+.pill i { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
+.pill.on { color: var(--fg); }
+.pill.on i { background: var(--ok); animation: pulse 2s infinite; }
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--ok) 55%, transparent); }
+  70%, 100% { box-shadow: 0 0 0 7px transparent; }
+}
+@media (prefers-reduced-motion: reduce) { .pill.on i { animation: none; } }
+
+.kpis { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 12px; }
+.kpi, .panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; min-width: 0; }
+h2 { margin: 0 0 10px; display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-size: 12px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+.count { font-family: var(--font-num); font-size: 13px; letter-spacing: 0; text-transform: none; }
+
+.big, .num, .rid, .time, .amt, .left { font-family: var(--font-num); font-variant-numeric: tabular-nums; }
+.big { margin: 0; font-size: 34px; font-weight: 500; letter-spacing: -0.02em; }
+.num { margin: 0; font-size: 26px; font-weight: 500; }
+
+.spark { display: block; width: 100%; height: auto; margin-top: 10px; overflow: visible; }
+.spark .area { fill: var(--accent-soft); }
+.spark .line { fill: none; stroke: var(--accent); stroke-width: 2; vector-effect: non-scaling-stroke; stroke-linejoin: round; }
+.spark .dot { fill: var(--accent); }
+
+.cols { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 12px; align-items: start; }
+.side { display: grid; gap: 12px; min-width: 0; }
+.empty { margin: 0; color: var(--muted); font-size: 14px; }
+
+/* sales tape */
+.tape { list-style: none; margin: 0; padding: 0; }
+.tape > li { border-top: 1px dashed var(--line); }
+.tape > li:first-child { border-top: 0; }
+.tape > li.fresh { animation: flash 2.6s ease-out; }
+@keyframes flash { from { background: var(--accent-soft); } to { background: transparent; } }
+@media (prefers-reduced-motion: reduce) { .tape > li.fresh { animation: none; background: var(--accent-soft); } }
+
+.row { display: grid; grid-template-columns: 44px 72px 58px minmax(0, 1fr) auto auto; gap: 10px; align-items: center; padding: 11px 4px; }
+.rid { color: var(--muted); font-size: 13px; }
+.time { font-size: 13px; }
+.items { color: var(--muted); font-size: 13px; }
+.amt { text-align: right; font-weight: 500; font-size: 15px; }
+.pay { justify-self: start; font-size: 12px; font-weight: 500; padding: 2px 8px; border: 1px solid currentColor; border-radius: 999px; }
+.pay[data-method="UPI"] { color: var(--c-upi); }
+.pay[data-method="Cash"] { color: var(--c-cash); }
+.pay[data-method="Card"] { color: var(--c-card); }
+.link { font: inherit; font-size: 13px; color: var(--accent); background: none; border: 0; padding: 0; cursor: pointer; text-decoration: underline; }
+
+/* low stock */
+.low { list-style: none; margin: 0; padding: 0; }
+.low li { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 10px; align-items: center; padding: 10px 0; border-top: 1px dashed var(--line); }
+.low li:first-child { border-top: 0; padding-top: 0; }
+.low strong { display: block; font-size: 14px; font-weight: 500; }
+.sku { display: block; font-size: 12px; color: var(--muted); font-family: var(--font-num); }
+.left { font-size: 13px; color: var(--bad); font-weight: 500; }
+.left.out { background: var(--bad-soft); padding: 2px 8px; border-radius: 999px; }
+.btn-sm { font: inherit; font-size: 13px; padding: 5px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--fg); cursor: pointer; }
+.btn-sm:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.btn-sm:disabled { opacity: 0.5; cursor: default; }
+
+/* payment split */
+.split { display: flex; gap: 2px; height: 12px; border-radius: 6px; overflow: hidden; margin-bottom: 14px; }
+.split span { flex-basis: 0; min-width: 6px; background: var(--muted); }
+.split span[data-method="UPI"], .legend i[data-method="UPI"] { background: var(--c-upi); }
+.split span[data-method="Cash"], .legend i[data-method="Cash"] { background: var(--c-cash); }
+.split span[data-method="Card"], .legend i[data-method="Card"] { background: var(--c-card); }
+.legend { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; font-size: 14px; }
+.legend li { display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; gap: 10px; align-items: center; }
+.legend i { width: 10px; height: 10px; border-radius: 3px; background: var(--muted); }
+.legend .pct { color: var(--muted); font-family: var(--font-num); font-size: 13px; }
+.legend strong { font-family: var(--font-num); font-weight: 500; }
+
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+@media (max-width: 860px) { .cols { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 760px) {
+  .kpis { grid-template-columns: 1fr 1fr; }
+  .kpi-main { grid-column: 1 / -1; }
+}
+@media (max-width: 560px) {
+  .row { grid-template-columns: auto auto auto minmax(0, 1fr) auto; }
+  .items { display: none; }
+}

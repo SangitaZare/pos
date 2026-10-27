@@ -1,0 +1,16 @@
+@PosApi_HostAddress = http://localhost:5137
+
+GET {{PosApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
+POST https://localhost:7123/api/sales
+Content-Type: application/json
+
+{
+  "paymentMethod": "UPI",
+  "items": [
+    { "productId": 1, "quantity": 2 },
+    { "productId": 3, "quantity": 1 }
+  ]
+}

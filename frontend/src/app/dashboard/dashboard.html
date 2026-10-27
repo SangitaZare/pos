@@ -1,0 +1,111 @@
+<div class="dash">
+  <header class="top">
+    <div>
+      <h1>Store dashboard</h1>
+      <p class="sub">{{ today | date:'EEEE, MMMM d' }}</p>
+    </div>
+    <span class="pill" [class.on]="realtime.connected()">
+      <i></i>{{ realtime.connected() ? 'Live' : 'Connecting…' }}
+    </span>
+  </header>
+
+  <section class="kpis">
+    <article class="kpi kpi-main">
+      <h2>Revenue today</h2>
+      <p class="big">{{ revenue() | currency:'INR':'symbol':'1.0-0' }}</p>
+      @if (spark(); as s) {
+        <svg class="spark" viewBox="0 0 240 48" aria-hidden="true">
+          <polygon class="area" [attr.points]="s.area" />
+          <polyline class="line" [attr.points]="s.line" />
+          <circle class="dot" [attr.cx]="s.x" [attr.cy]="s.y" r="3.5" />
+        </svg>
+      }
+    </article>
+    <article class="kpi">
+      <h2>Sales</h2>
+      <p class="num">{{ salesCount() }}</p>
+    </article>
+    <article class="kpi">
+      <h2>Items sold</h2>
+      <p class="num">{{ itemsSold() }}</p>
+    </article>
+    <article class="kpi">
+      <h2>Average sale</h2>
+      <p class="num">{{ average() | currency:'INR':'symbol':'1.0-0' }}</p>
+    </article>
+  </section>
+
+  <div class="cols">
+    <section class="panel">
+      <h2>Live sales <span class="count">{{ salesCount() }} today</span></h2>
+
+      @if (todaySales().length === 0) {
+        <p class="empty">No sales yet today. Sales made on the cashier screen appear here as they happen.</p>
+      }
+
+      <ul class="tape">
+        @for (s of todaySales(); track s.id) {
+          <li [class.fresh]="s.id === newSaleId()">
+            <div class="row">
+              <span class="rid">#{{ s.id }}</span>
+              <span class="time">{{ s.createdAt | date:'shortTime' }}</span>
+              <span class="pay" [attr.data-method]="s.paymentMethod">{{ s.paymentMethod }}</span>
+              <span class="items">{{ s.itemCount }} {{ s.itemCount === 1 ? 'item' : 'items' }}</span>
+              <strong class="amt">{{ s.totalAmount | currency:'INR':'symbol':'1.0-0' }}</strong>
+              <a class="link" [routerLink]="['/receipt', s.id]" target="_blank">Receipt</a>
+            </div>
+          </li>
+        }
+      </ul>
+    </section>
+
+    <div class="side">
+      <section class="panel">
+        <h2>Low stock <span class="count">{{ lowStock().length }}</span></h2>
+
+        @if (lowStock().length === 0) {
+          <p class="empty">Every product is above its alert level.</p>
+        }
+
+        <ul class="low">
+          @for (p of lowStock(); track p.id) {
+            <li>
+              <div>
+                <strong>{{ p.name }}</strong>
+                <span class="sku">{{ p.sku }}</span>
+              </div>
+              <span class="left" [class.out]="p.stockQuantity === 0">
+                {{ p.stockQuantity === 0 ? 'Out of stock' : p.stockQuantity + ' left' }}
+              </span>
+              <button class="btn-sm" (click)="restock(p)" [disabled]="restocking() === p.id">Restock +10</button>
+            </li>
+          }
+        </ul>
+      </section>
+
+      <section class="panel">
+        <h2>Payment split</h2>
+
+        @if (byPayment().length) {
+          <div class="split" role="img" aria-label="Revenue by payment method">
+            @for (m of byPayment(); track m.method) {
+              <span [style.flex-grow]="m.total" [attr.data-method]="m.method"></span>
+            }
+          </div>
+          <ul class="legend">
+            @for (m of byPayment(); track m.method) {
+              <li>
+                <i [attr.data-method]="m.method"></i>
+                <span class="m">{{ m.method }}</span>
+                <span class="pct">{{ m.pct }}%</span>
+                <strong>{{ m.total | currency:'INR':'symbol':'1.0-0' }}</strong>
+              </li>
+            }
+          </ul>
+        } @else {
+          <p class="empty">The payment mix appears after the first sale.</p>
+        }
+      </section>
+    </div>
+  </div>
+</div>

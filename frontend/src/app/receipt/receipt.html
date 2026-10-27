@@ -1,0 +1,27 @@
+<div class="receipt">
+  @if (sale(); as s) {
+    <h2>Receipt #{{ s.id }}</h2>
+    <p class="muted">{{ s.createdAt | date:'medium' }} &middot; {{ s.paymentMethod }}</p>
+
+    <table>
+      <thead><tr><th>Item</th><th>Qty</th><th>Price</th><th>Amount</th></tr></thead>
+      <tbody>
+        @for (i of s.items; track i.id) {
+          <tr>
+            <td>{{ i.product?.name }}</td>
+            <td>{{ i.quantity }}</td>
+            <td>{{ i.unitPrice | currency:'INR' }}</td>
+            <td>{{ i.unitPrice * i.quantity | currency:'INR' }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+
+    <p class="total">Total: {{ s.totalAmount | currency:'INR' }}</p>
+    <img class="qr" [src]="api.qrUrl(s.id)" alt="Receipt QR code" />
+  } @else if (notFound()) {
+    <p>Receipt not found.</p>
+  } @else {
+    <p>Loading...</p>
+  }
+</div>
